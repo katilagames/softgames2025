@@ -1,1 +1,3 @@
-console.log('Softgames');
+import App from "./App";
+
+const app = new App();
