@@ -112,7 +112,7 @@ export default class Game1 extends Game {
   }
 
   showCards() {
-    const delay = 0.015;
+    const delay = 0.05;
 
     for (let i = 0, length = this.cards.length; i < length; i++) {
       const card = this.cards[i];
