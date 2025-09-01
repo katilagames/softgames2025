@@ -36,4 +36,7 @@ export default class Game extends Container {
   init() {
     Logger.log('init', 'Game');
   }
+  destroy() {
+    Logger.log('destroy', 'Game');
+  }
 }
