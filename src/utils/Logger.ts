@@ -28,4 +28,18 @@ export default class Logger {
 
     Logger.displayLog(`%c ${Logger.getClassName(className)}${str}`, Logger.logsColors.info);
   }
+
+  static warn(str = '', className = '') {
+    if (!str) {
+      return;
+    }
+    console.warn(`${Logger.getClassName(className)}${str}`);
+  }
+
+  static error(str = '', className = '') {
+    if (!str) {
+      return;
+    }
+    console.error(`${Logger.getClassName(className)}${str}`);
+  }
 }
