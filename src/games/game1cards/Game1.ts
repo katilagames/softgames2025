@@ -25,6 +25,7 @@ export default class Game1 extends Game {
 
   async init() {
     super.init();
+    this.app.displayPreloader();
     this.sortableChildren = true;
     this.cardTexture = await Assets.load('img/card.png');
 
@@ -44,13 +45,14 @@ export default class Game1 extends Game {
     }
 
     this.showCards();
-    
+    this.app.hidePreloader();
     Logger.info('init', 'Game1');
   }
 
   destroy(): void {
     this.stopShuffling();
     this.clearTimeouts();
+    this.removeChildren();
     super.destroy();
 
     Logger.info('destroy', 'Game1');

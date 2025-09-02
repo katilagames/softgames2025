@@ -1,4 +1,4 @@
-import { Application, Container } from "pixi.js";
+import { Application, Container, Text } from "pixi.js";
 import Menu from "./menu/Menu";
 import Logger from "./utils/Logger";
 
@@ -8,6 +8,7 @@ import "./main.css";
 import Game3 from "./games/game3particles/Game3";
 import Game2 from "./games/game2avatars/Game2";
 import { getGameSize } from "./utils/Layout";
+import Preloader from "./utils/Preloader";
 
 export default class App {
   private menu: Menu = null;
@@ -19,7 +20,9 @@ export default class App {
   public gamePaddingPerc = 0.1;
 
   private currentGame: Game1 | Game2 | Game3;
+  private preloader: Preloader = null;
 
+  private fpsDisplay: Text = null;
   constructor() {
     Logger.log('init', 'App');
     this.scaleApp = this.scaleApp.bind(this);
@@ -31,14 +34,15 @@ export default class App {
     this.scaleApp();
 
     this.pixiApp = new Application({
-      // width: this.gameWidth,
-      // height: this.gameHeight,
       resolution: App.pixelRatio,
-      backgroundColor: '#DEC484',
+      backgroundColor: '#444444',
       antialias: true,
       autoDensity: true,
       resizeTo: window,
     });
+
+    this.oEF = this.oEF.bind(this);
+    this.pixiApp.ticker.add(this.oEF);
 
     document.body.appendChild(this.pixiApp.view);
 
@@ -49,10 +53,17 @@ export default class App {
     this.container.y = this.app.screen.height/2;
     this.stage.addChild(this.container);
     
-    this.displayGame(GAME_TYPE.MAGIC_WORDS);
+    this.displayMenu();
+    // this.displayGame(GAME_TYPE.PHOENIX_FLAME);
 
-    window.addEventListener('resize', this.scaleApp);
-    
+    this.fpsDisplay = new Text("FPS", { fontSize: 12 });
+    this.fpsDisplay.zIndex = 10000;
+    this.fpsDisplay.x = 10;
+    this.fpsDisplay.y = 10;
+
+    this.pixiApp.stage.addChild(this.fpsDisplay);
+
+    window.addEventListener('resize', this.scaleApp); 
   }
   destroy() {
     window.removeEventListener('resize', this.scaleApp);
@@ -81,13 +92,29 @@ export default class App {
   }
 
   displayMenu() {
+    if (!this.menu) {
+      this.menu = new Menu(this);
+    }
 
+    this.menu.init();
+    this.stage.addChild(this.menu);
   }
   hideMenu() {
+    this.stage.removeChild(this.menu);
+    this.menu.destroy();
+  }
+  toggleMenu(isEnabled: boolean) {
+    if (!this.menu) {
+      return;
+    }
 
+    this.menu.alpha = isEnabled ? 1 : 0.5;
+    this.menu.interactive = isEnabled;
+    this.menu.interactiveChildren = isEnabled;
   }
 
   displayGame(gameType: GAME_TYPE) {
+    this.hideGame();
     const games = [Game1, Game2, Game3];
     this.currentGame = new games[gameType - 1](this);
     this.currentGame.init();
@@ -97,9 +124,32 @@ export default class App {
       return;
     }
 
+    this.stage.removeChild(this.currentGame);
     this.currentGame.destroy();
+    this.currentGame = null;
   }
 
+  displayPreloader() {
+    if (!this.preloader) {
+      this.preloader = new Preloader(this);
+    }
+    this.toggleMenu(false);
+    
+    this.stage.addChild(this.preloader);
+    this.preloader.init();
+    this.preloader.x = this.app.screen.width/2;
+    this.preloader.y = this.app.screen.height/2;
+  }
+  hidePreloader() {
+    if (!this.preloader) {
+      return;
+    }
+    this.toggleMenu(true);
+
+    this.stage.removeChild(this.preloader);
+    this.preloader.destroy();
+    this.preloader = null;
+  }
   updateGameSize() {
     const { width, height} = getGameSize();
 
@@ -108,6 +158,13 @@ export default class App {
   }
   scaleApp() {
     this.updateGameSize();
+  }
+
+  oEF() {
+    if (!this.fpsDisplay) {
+      return;
+    }
+    this.fpsDisplay.text = `FPS: ${Math.round(this.pixiApp.ticker.FPS)}`;
   }
 
   public static get fullWidth(): number {

@@ -17,6 +17,7 @@ export default class Game2 extends Game {
 
   async init() {
     super.init();
+    this.app.displayPreloader();
     Logger.info('init', 'Game2');
 
     this.gameData = await this.loadConfig();
@@ -29,8 +30,10 @@ export default class Game2 extends Game {
     this.currentDialogueId = 0;
 
     this.startDialogues();
+    this.app.hidePreloader();
   }
   destroy(): void {
+    this.removeChildren();
     this.clearDialogues();
     super.destroy();
     Logger.info('destroy', 'Game2');
@@ -145,7 +148,7 @@ export default class Game2 extends Game {
 
       return await response.json();
     } catch(error) {
-      console.error(error);
+      Logger.error(error);
     }
   }
   async loadAssets() {
