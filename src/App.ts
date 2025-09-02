@@ -1,7 +1,7 @@
 import { Application, Container } from "pixi.js";
 import Menu from "./menu/Menu";
 import Logger from "./utils/Logger";
-import * as config from './config.json';
+
 import Game1 from "./games/game1cards/Game1";
 
 import "./main.css";
@@ -13,7 +13,6 @@ export default class App {
   private menu: Menu = null;
   private pixiApp: Application<HTMLCanvasElement> = null;
   private container: Container;
-  private gameData: JSON;
 
   public gameWidth = 1000;
   public gameHeight = 1000;
@@ -35,7 +34,7 @@ export default class App {
       // width: this.gameWidth,
       // height: this.gameHeight,
       resolution: App.pixelRatio,
-      backgroundColor: '#212721ff',
+      backgroundColor: '#DEC484',
       antialias: true,
       autoDensity: true,
       resizeTo: window,
@@ -45,14 +44,12 @@ export default class App {
 
     this.menu = new Menu(this);
 
-    this.gameData = await this.loadConfig();
-
     this.container = new Container();
     this.container.x = this.app.screen.width/2;
     this.container.y = this.app.screen.height/2;
     this.stage.addChild(this.container);
     
-    this.displayGame(GAME_TYPE.ACE_OF_SHADOWS);
+    this.displayGame(GAME_TYPE.MAGIC_WORDS);
 
     window.addEventListener('resize', this.scaleApp);
     
@@ -101,27 +98,6 @@ export default class App {
     }
 
     this.currentGame.destroy();
-  }
-
-  async loadConfig() {
-    Logger.log(`loadConfig mode ${this.mode}`, 'App');
-
-    const url = config[this.mode].dataUrl;
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response) {
-        throw new Error('Loading data failed');
-      }
-      
-      return await response.json();
-    } catch(error) {
-      console.error(error);
-    }
   }
 
   updateGameSize() {

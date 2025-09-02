@@ -3,7 +3,7 @@ import App from "../App";
 import Logger from "../utils/Logger";
 
 export default class Game extends Container {
-  protected app: App;
+  app: App;
   
 
   constructor(app) {
